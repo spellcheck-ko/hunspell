@@ -99,6 +99,7 @@ AffixMgr::AffixMgr(const char* affpath,
   parsedrep = false;
   iconvtable = NULL;
   oconvtable = NULL;
+  converter = NULL;
   // allow simplified compound forms (see 3rd field of CHECKCOMPOUNDPATTERN)
   simplifiedcpd = 0;
   parsedcheckcpd = false;
@@ -203,6 +204,7 @@ AffixMgr::~AffixMgr() {
     sStart[j] = NULL;
   }
 
+  delete converter;
   delete iconvtable;
   delete oconvtable;
   delete phone;
@@ -548,6 +550,13 @@ int AffixMgr::parse_file(const char* affpath, const char* key) {
     /* parse in the input conversion table */
     if (line.compare(0, 5, "OCONV", 5) == 0) {
       if (!parse_convtable(line, afflst, &oconvtable, "OCONV")) {
+        finishFileMgr(afflst);
+        return 1;
+      }
+    }
+
+    if (line.compare(0, 4, "CONV", 4) == 0) {
+      if (!parse_conv(line, afflst, &converter)) {
         finishFileMgr(afflst);
         return 1;
       }
@@ -3431,6 +3440,13 @@ RepList* AffixMgr::get_oconvtable() const {
   return oconvtable;
 }
 
+// return converter
+Converter* AffixMgr::get_converter() const {
+  if (!converter)
+    return NULL;
+  return converter;
+}
+
 // return replacing table
 struct phonetable* AffixMgr::get_phonetable() const {
   if (!phone)
@@ -3880,6 +3896,107 @@ bool AffixMgr::parse_convtable(const std::string& line,
     }
     (*rl)->add(pattern, pattern2);
   }
+  return true;
+}
+
+bool AffixMgr::parse_conv(const std::string& line,
+			  FileMgr* af,
+			  Converter** conv) {
+  if (*conv) {
+    HUNSPELL_WARNING(stderr, "error: line %d: multiple table definitions\n",
+                     af->getlinenum());
+    return false;
+  }
+  int i = 0;
+  int np = 0;
+  int numrl = 0;
+  std::string name;
+  std::string::const_iterator iter = line.begin();
+  std::string::const_iterator start_piece = mystrsep(line, iter);
+  while (start_piece != line.end()) {
+    switch (i) {
+      case 0: {
+        np++;
+        break;
+      }
+      case 1: {
+        name = std::string(start_piece, iter);
+        np++;
+        break;
+      }
+      case 2: {
+        numrl = atoi(std::string(start_piece, iter).c_str());
+        if (numrl < 1) {
+          HUNSPELL_WARNING(stderr, "error: line %d: incorrect entry number\n",
+                           af->getlinenum());
+          return false;
+        }
+        np++;
+        break;
+      }
+      default:
+        break;
+    }
+    ++i;
+    start_piece = mystrsep(line, iter);
+  }
+  if (np != 3) {
+    HUNSPELL_WARNING(stderr, "error: line %d: missing data\n",
+                     af->getlinenum());
+    return false;
+  }
+
+  std::list<std::string> params(numrl);
+
+#if 0
+  /* now parse the num lines to read the parameters */
+  for (int j = 0; j < numrl; j++) {
+    std::string nl;
+    if (!af->getline(nl))
+      return false;
+    mychomp(nl);
+    i = 0;
+    std::string pattern;
+    std::string pattern2;
+    iter = nl.begin();
+    start_piece = mystrsep(nl, iter);
+    while (start_piece != nl.end()) {
+      {
+        switch (i) {
+          case 0: {
+            if (nl.compare(start_piece - nl.begin(), keyword.size(), "CONV", 0, 4) != 0) {
+              HUNSPELL_WARNING(stderr, "error: line %d: table is corrupt\n",
+                               af->getlinenum());
+              return false;
+            }
+            break;
+          }
+          case 1: {
+            pattern.assign(start_piece, iter);
+            break;
+          }
+          case 2: {
+            pattern2.assign(start_piece, iter);
+            break;
+          }
+          default:
+            break;
+        }
+        ++i;
+      }
+      start_piece = mystrsep(nl, iter);
+    }
+    if (pattern.empty() || pattern2.empty()) {
+      HUNSPELL_WARNING(stderr, "error: line %d: table is corrupt\n",
+                       af->getlinenum());
+      return false;
+    }
+    (*rl)->add(pattern, pattern2);
+  }
+#endif
+
+  *conv = ConverterFactory::get_converter(name, params);
+
   return true;
 }
 

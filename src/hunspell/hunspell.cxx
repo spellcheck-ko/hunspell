@@ -443,10 +443,16 @@ bool HunspellImpl::spell(const std::string& word, int* info, std::string* root) 
     std::string wspace;
 
     bool convstatus = rl ? rl->conv(word, wspace) : false;
+    if (!convstatus) {
+      Converter* conv = pAMgr ? pAMgr->get_converter() : NULL;
+      convstatus = conv ? conv->input_conv(word, wspace) : false;
+    }
+
     if (convstatus)
       wl = cleanword2(scw, sunicw, wspace, &captype, &abbv);
-    else
+    else {
       wl = cleanword2(scw, sunicw, word, &captype, &abbv);
+    }
   }
 
 #ifdef MOZILLA_CLIENT
@@ -1156,6 +1162,13 @@ std::vector<std::string> HunspellImpl::suggest(const std::string& word) {
     }
   }
 
+  Converter* conv = (pAMgr) ? pAMgr->get_converter() : NULL;
+  for (size_t j = 0; conv && j < slst.size(); ++j) {
+    std::string wspace;
+    if (conv->output_conv(slst[j], wspace)) {
+      slst[j] = wspace;
+    }
+  }
   return slst;
 }
 

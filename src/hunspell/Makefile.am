@@ -7,6 +7,7 @@ libhunspell_1_6_la_SOURCES=affentry.cxx affixmgr.cxx csutil.cxx \
 	             csutil.hxx atypes.hxx suggestmgr.hxx \
 	             baseaffix.hxx hashmgr.hxx langnum.hxx \
 	             phonet.hxx filemgr.hxx hunzip.hxx replist.hxx
+libhunspell_1_6_la_SOURCES+=conv.cxx conv.hxx conv-ko.cxx conv-ko.hxx
 
 libhunspell_1_6_include_HEADERS=hunspell.hxx hunspell.h hunvisapi.h \
 		                w_char.hxx atypes.hxx csutil.hxx htypes.hxx

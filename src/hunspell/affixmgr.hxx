@@ -81,6 +81,7 @@
 #include "hashmgr.hxx"
 #include "phonet.hxx"
 #include "replist.hxx"
+#include "conv.hxx"
 
 // check flag duplication
 #define dupSFX (1 << 0)
@@ -124,6 +125,7 @@ class AffixMgr {
   std::vector<replentry> reptable;
   RepList* iconvtable;
   RepList* oconvtable;
+  Converter* converter;
   bool parsedmaptable;
   std::vector<mapentry> maptable;
   bool parsedbreaktable;
@@ -295,6 +297,7 @@ class AffixMgr {
   const std::vector<replentry>& get_reptable() const;
   RepList* get_iconvtable() const;
   RepList* get_oconvtable() const;
+  Converter* get_converter() const;
   struct phonetable* get_phonetable() const;
   const std::vector<mapentry>& get_maptable() const;
   const std::vector<std::string>& get_breaktable() const;
@@ -343,6 +346,7 @@ class AffixMgr {
                       FileMgr* af,
                       RepList** rl,
                       const std::string& keyword);
+  bool parse_conv(const std::string& line, FileMgr* af, Converter** conv);
   bool parse_phonetable(const std::string& line, FileMgr* af);
   bool parse_maptable(const std::string& line, FileMgr* af);
   bool parse_breaktable(const std::string& line, FileMgr* af);
