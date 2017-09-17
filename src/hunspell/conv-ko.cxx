@@ -69,19 +69,26 @@
  */
 #include "conv-ko.hxx"
 #include <string.h>
+#include "csutil.hxx"
 
 class ConverterKoreanImpl {
  public:
   ConverterKoreanImpl(const Converter::ParameterList& params);
-  bool input_conv(const std::string& src, std::string& dest);
-  bool output_conv(const std::string& src, std::string& dest);
+  bool input_conv(const std::string& src, std::string& dest) const;
+  bool output_conv(const std::string& src, std::string& dest) const;
 
  private:
+  w_char code_reset;
+  w_char code_start;
 };
 
 ConverterKorean::ConverterKorean(const ParameterList& params)
 {
   impl = new ConverterKoreanImpl(params);
+
+  for (std::string param : params) {
+    // FIXME
+  }
 }
 
 ConverterKorean::~ConverterKorean()
@@ -103,15 +110,139 @@ ConverterKoreanImpl::ConverterKoreanImpl(const Converter::ParameterList& params)
 {
 }
 
-bool ConverterKoreanImpl::input_conv(const std::string& src, std::string& dest)
+bool ConverterKoreanImpl::input_conv(const std::string& src, std::string& dest) const
 {
-  dest = src;
+  static const int lseq[][3] = {
+    { 0x01, },				// ㄱ
+    { 0x02, },				// ㄲ
+    { },
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+  };
+  static const int vseq[][3] = {
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+  };
+  static const int tseq[][3] = {
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+  };
+  std::vector<w_char> u16;
+  int nchar;
+  std::vector<w_char> u16_dest;
+
+  nchar = u8_u16(u16, src);
+
+  for (int idx = 0; idx < nchar; ++idx) {
+    w_char ch = u16[idx];
+    #if 0
+    if (ch >= 0xAC00 && ch <= 0xD7A3) {
+      int idx = ch - 0xAC00;
+      int l = idx / (21 * 28);
+      int v = (idx / 28) % 21;
+      int t = idx % 28;
+
+      // Hangul syllable
+      //u16_dest.append();
+
+      
+
+
+      if (t != 0) {
+
+      }
+    }
+    #endif
+    u16_dest.push_back(ch);
+  }
+
+  u16_u8(dest, u16_dest);
   return true;
 }
 
 bool ConverterKoreanImpl::output_conv(const std::string& src,
-				      std::string& dest)
+					    std::string& dest) const
 {
-  dest = src;
+  std::vector<w_char> u16;
+  std::vector<w_char> u16_dest;
+  int nchar;
+
+  nchar = u8_u16(u16, src);
+
+  for (int idx = 0; idx < nchar; ++idx) {
+    w_char ch = u16[idx];
+    #if 0
+    if (ch >= 0xAC00 && ch <= 0xD7A3) {
+      // Hangul syllable
+      //u16_dest.append();
+
+      int l;
+      int v;
+      int t;
+
+    }
+    #endif
+    u16_dest.push_back(ch);
+  }
+
+  u16_u8(dest, u16_dest);
   return true;
 }

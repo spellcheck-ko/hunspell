@@ -83,18 +83,6 @@ Converter& Converter::operator=(Converter&& c)
   return *this;
 }
 
-bool Converter::input_conv(const std::string& src, std::string& dest)
-{
-
-
-}
-
-bool Converter::output_conv(const std::string& src, std::string& dest)
-{
-
-
-}
-
 Converter* ConverterFactory::get_converter(const std::string& name,
 					   const Converter::ParameterList& params)
 {
