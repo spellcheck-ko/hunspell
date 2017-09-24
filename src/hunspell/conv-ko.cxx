@@ -187,9 +187,9 @@ bool ConverterKoreanImpl::input_conv(const std::string& src, std::string& dest) 
   };
   std::vector<w_char> u16;
   int nchar;
-  std::vector<w_char> u16_dest;
 
   nchar = u8_u16(u16, src);
+  std::vector<w_char> u16_dest(u16.size() * 3);
 
   for (int idx = 0; idx < nchar; ++idx) {
     w_char ch = u16[idx];
@@ -202,8 +202,6 @@ bool ConverterKoreanImpl::input_conv(const std::string& src, std::string& dest) 
 
       // Hangul syllable
       //u16_dest.append();
-
-      
 
 
       if (t != 0) {
