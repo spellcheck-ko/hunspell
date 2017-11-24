@@ -3948,12 +3948,12 @@ bool AffixMgr::parse_conv(const std::string& line,
 
   std::list<std::string> params(numrl);
 
-#if 0
   /* now parse the num lines to read the parameters */
   for (int j = 0; j < numrl; j++) {
     std::string nl;
     if (!af->getline(nl))
       return false;
+#if 0
     mychomp(nl);
     i = 0;
     std::string pattern;
@@ -3992,8 +3992,8 @@ bool AffixMgr::parse_conv(const std::string& line,
       return false;
     }
     (*rl)->add(pattern, pattern2);
-  }
 #endif
+  }
 
   *conv = ConverterFactory::get_converter(name, params);
 

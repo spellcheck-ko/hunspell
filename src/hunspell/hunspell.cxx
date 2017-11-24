@@ -448,9 +448,9 @@ bool HunspellImpl::spell(const std::string& word, int* info, std::string* root) 
       convstatus = conv ? conv->input_conv(word, wspace) : false;
     }
 
-    if (convstatus)
+    if (convstatus) {
       wl = cleanword2(scw, sunicw, wspace, &captype, &abbv);
-    else {
+    } else {
       wl = cleanword2(scw, sunicw, word, &captype, &abbv);
     }
   }
@@ -868,8 +868,14 @@ std::vector<std::string> HunspellImpl::suggest(const std::string& word) {
     bool convstatus = rl ? rl->conv(word, wspace) : false;
     if (convstatus)
       wl = cleanword2(scw, sunicw, wspace, &captype, &abbv);
-    else
-      wl = cleanword2(scw, sunicw, word, &captype, &abbv);
+    else {
+      Converter* conv = pAMgr ? pAMgr->get_converter() : NULL;
+      convstatus = conv ? conv->input_conv(word, wspace) : false;
+      if (convstatus)
+	wl = cleanword2(scw, sunicw, wspace, &captype, &abbv);
+      else
+        wl = cleanword2(scw, sunicw, word, &captype, &abbv);
+    }
 
     if (wl == 0)
       return slst;
@@ -1399,8 +1405,14 @@ std::vector<std::string> HunspellImpl::analyze(const std::string& word) {
     bool convstatus = rl ? rl->conv(word, wspace) : false;
     if (convstatus)
       wl = cleanword2(scw, sunicw, wspace, &captype, &abbv);
-    else
-      wl = cleanword2(scw, sunicw, word, &captype, &abbv);
+    else {
+      Converter* conv = pAMgr ? pAMgr->get_converter() : NULL;
+      convstatus = conv ? conv->input_conv(word, wspace) : false;
+      if (convstatus)
+	wl = cleanword2(scw, sunicw, wspace, &captype, &abbv);
+      else
+        wl = cleanword2(scw, sunicw, word, &captype, &abbv);
+    }
   }
 
   if (wl == 0) {
@@ -1710,6 +1722,13 @@ bool HunspellImpl::input_conv(const std::string& word, std::string& dest) {
   if (rl) {
     return rl->conv(word, dest);
   }
+  else {
+    Converter* conv = pAMgr ? pAMgr->get_converter() : NULL;
+    if (conv) {
+      return conv->input_conv(word, dest);
+    }
+  }
+
   dest.assign(word);
   return false;
 }
