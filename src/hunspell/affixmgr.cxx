@@ -3946,14 +3946,13 @@ bool AffixMgr::parse_conv(const std::string& line,
     return false;
   }
 
-  std::list<std::string> params(numrl);
+  Converter::ParameterList params;
 
   /* now parse the num lines to read the parameters */
   for (int j = 0; j < numrl; j++) {
     std::string nl;
     if (!af->getline(nl))
       return false;
-#if 0
     mychomp(nl);
     i = 0;
     std::string pattern;
@@ -3964,7 +3963,7 @@ bool AffixMgr::parse_conv(const std::string& line,
       {
         switch (i) {
           case 0: {
-            if (nl.compare(start_piece - nl.begin(), keyword.size(), "CONV", 0, 4) != 0) {
+            if (nl.compare(start_piece - nl.begin(), 4, "CONV", 0, 4) != 0) {
               HUNSPELL_WARNING(stderr, "error: line %d: table is corrupt\n",
                                af->getlinenum());
               return false;
@@ -3991,8 +3990,7 @@ bool AffixMgr::parse_conv(const std::string& line,
                        af->getlinenum());
       return false;
     }
-    (*rl)->add(pattern, pattern2);
-#endif
+    params.emplace_back(pattern, pattern2);
   }
 
   *conv = ConverterFactory::get_converter(name, params);

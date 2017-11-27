@@ -76,7 +76,7 @@
 
 class Converter {
  public:
-  typedef std::string Parameter;
+  typedef std::pair<std::string,std::string> Parameter;
   typedef std::list<Parameter> ParameterList;
 
   Converter()

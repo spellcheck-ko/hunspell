@@ -85,8 +85,11 @@ ConverterKorean::ConverterKorean(const ParameterList& params)
 {
   impl = new ConverterKoreanImpl(params);
 
-  for (std::string param : params) {
-    // FIXME
+  for (Converter::Parameter param : params) {
+    std::string& k = param.first;
+    std::string& v = param.second;
+
+    /* FIXME */
   }
 }
 
